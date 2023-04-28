@@ -1,0 +1,470 @@
+________________________DatabaseHelper.java_______________________________________________________________________________________- 
+
+package com.example.chulkatidotcom;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
+
+public class DatabaseHelper extends SQLiteOpenHelper {
+
+    private static final int DATABASE_VERSION = 1;
+    private static final String DATABASE_NAME = "Chulkati_DataForm.db";
+    private static final String TABLE_USERS = "users";
+    private static final String KEY_ID = "id";
+    private static final String KEY_FIRST_NAME = "first_name";
+    private static final String KEY_LAST_NAME = "last_name";
+    private static final String KEY_GENDER = "gender";
+    private static final String KEY_EMAIL = "email";
+    private static final String KEY_Date_Of_Birth = "date_of_birth";
+    private static final String KEY_PASSWORD = "password";
+    private static final String KEY_SIGN_UP_DATE = "signup_date";
+
+
+    public DatabaseHelper(Context context) {
+        super(context, DATABASE_NAME, null, DATABASE_VERSION);
+    }
+
+
+    @Override
+    public void onCreate(SQLiteDatabase db) {
+        String CREATE_USERS_TABLE = "CREATE TABLE " + TABLE_USERS + " ("
+                + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + KEY_FIRST_NAME + " TEXT,"
+                + KEY_LAST_NAME + " TEXT,"
+                + KEY_GENDER + " TEXT,"
+                + KEY_EMAIL + " TEXT,"
+                + KEY_Date_Of_Birth + " TEXT,"
+                + KEY_PASSWORD + " TEXT,"
+                + KEY_SIGN_UP_DATE + " TEXT)";
+        db.execSQL(CREATE_USERS_TABLE);
+    }
+
+    @Override
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);
+        onCreate(db);
+    }
+
+
+    public boolean addUser(User user) {
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues user_values = new ContentValues();
+
+        user_values.put(KEY_FIRST_NAME, user.getFirst_name());
+        user_values.put(KEY_LAST_NAME, user.getLast_name());
+        user_values.put(KEY_GENDER, user.getGender());
+        user_values.put(KEY_EMAIL, user.getEmail());
+        user_values.put(KEY_Date_Of_Birth, user.getDate_of_birth());
+        user_values.put(KEY_PASSWORD, user.getPassword());
+        user_values.put(KEY_SIGN_UP_DATE, user.getSignup_date());
+
+        Log.d(DATABASE_NAME, "addUser: Adding " + user + " to " + TABLE_USERS);
+        long result = db.insert(TABLE_USERS, null, user_values);
+        if (result == -1)
+            return false;
+        else
+            return true;
+    }
+    User user =  new User();
+
+   /* public Boolean checkUsername(User user)
+    {
+        SQLiteDatabase db = this.getWritableDatabase();
+        String username = user.getEmail();
+        Cursor cursor = db.rawQuery("SELECT * FROM TABLE_USER WHERE username = ?",new String[]{username});
+        if(cursor.getCount()>0) {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+
+    }*/
+    /*public Boolean checkUsernamePass(User user)
+    {
+        SQLiteDatabase db = this.getWritableDatabase();
+        String username = user.getEmail();
+        String passsword = user.getPassword();
+        Cursor cursor = db.rawQuery("SELECT * FROM TABLE_USER WHERE username = ? and password = ?",new String[]{username,passsword});
+        if(cursor.getCount()>0) {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }*/
+
+    public String getUsername()
+    {
+        SQLiteDatabase db = this.getWritableDatabase();
+        String username = user.getEmail();
+        Cursor cursor = db.rawQuery("SELECT * FROM TABLE_USER WHERE username = ?",new String[]{username});
+        if(cursor.getCount()>0) {
+            return username;
+        }
+        else
+        {
+            String error = "errorUser";
+            return error;
+        }
+    }
+    public String getPassword()
+    {
+        SQLiteDatabase db = this.getWritableDatabase();
+        String password = user.getPassword();
+        Cursor cursor = db.rawQuery("SELECT * FROM TABLE_USER WHERE password = ?",new String[]{password});
+        if(cursor.getCount()>0) {
+            return password;
+        }
+        else
+        {
+            String error = "errorPass";
+            return error;
+        }
+    }
+
+
+    public List<User> getAllUsers() {
+
+        List<User> userList = new ArrayList<>();
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        String select_query = "SELECT * FROM " + TABLE_USERS;
+        Cursor cursor = db.rawQuery(select_query, null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                User user = new User();
+                user.setId(cursor.getInt(0));
+                user.setFirst_name(cursor.getString(1));
+                user.setLast_name(cursor.getString(2));
+                user.setGender(cursor.getString(3));
+                user.setEmail(cursor.getString(4));
+                user.setDate_of_birth(cursor.getString(5));
+                user.setPassword(cursor.getString(6));
+                user.setSignup_date(cursor.getString(7));
+
+                userList.add(user);
+
+            } while (cursor.moveToNext());
+        }
+        return userList;
+    }
+}
+
+
+______________________________________________UserDataShow.java________________________________________________________________
+package com.example.chulkatidotcom;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.os.Bundle;
+import android.text.method.ScrollingMovementMethod;
+import android.widget.TextView;
+
+import java.util.List;
+
+public class UserDataShow extends AppCompatActivity {
+
+    private TextView t;
+    DatabaseHelper db = new DatabaseHelper(this);
+    String text = "";
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_user_data_show);
+
+        t = findViewById(R.id.showUsers);
+        t.setMovementMethod(new ScrollingMovementMethod());
+
+        List<User> users_data = db.getAllUsers();
+
+        for (User u : users_data) {
+            String log = "Id: " + u.getId() + "\n"
+                    + "First name: " + u.getFirst_name() + "\n"
+                    + "Last name: " + u.getLast_name() + "\n"
+                    + "Password: " + u.getPassword() + "\n"
+                    + "Gender: " + u.getGender() + "\n"
+                    + "Email: " + u.getEmail() + "\n"
+                    + "DOB: " + u.getDate_of_birth() + "\n"
+                    + "Registration Date & Time: " + u.getSignup_date() + "\n";
+            text = text + log;
+        }
+        t.setText(text);
+    }
+}
+
+______________________________________________User.java________________________________________________________________
+package com.example.chulkatidotcom;
+
+public class User {
+
+    int id;
+    String first_name;
+    String last_name;
+    String gender;
+    String email;
+    String date_of_birth;
+    String password;
+    String sign_up_date;
+
+    public User() {
+
+    }
+
+    public User(String first_name, String last_name, String gender, String email,
+                String date_of_birth, String password, String sign_up_date) {
+
+        this.first_name =first_name;
+        this.last_name = last_name;
+        this.gender = gender;
+        this.email = email;
+        this.date_of_birth = date_of_birth;
+        this.password = password;
+        this.sign_up_date = sign_up_date;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getFirst_name() {
+        return first_name;
+    }
+
+    public void setFirst_name(String first_name) {
+        this.first_name = first_name;
+    }
+
+    public String getLast_name() {
+        return last_name;
+    }
+
+    public void setLast_name(String last_name) {
+        this.last_name = last_name;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    public  String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getDate_of_birth() {
+        return date_of_birth;
+    }
+
+    public void setDate_of_birth(String date_of_birth) {
+        this.date_of_birth = date_of_birth;
+    }
+
+    public  String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getSignup_date() {
+        return sign_up_date;
+    }
+
+    public void setSignup_date(String signup_date) {
+        this.sign_up_date = signup_date;
+    }
+
+}
+____________________________________________________________Registration.java____________________________________________________________
+package com.example.chulkatidotcom;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.os.Bundle;
+import android.app.DatePickerDialog;
+import android.content.Intent;
+import android.text.InputFilter;
+import android.text.Spanned;
+import android.view.View;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.DatePicker;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import java.util.Calendar;
+import java.util.regex.Pattern;
+
+public class Registration extends AppCompatActivity {
+
+    private TextView date, first_name, last_name, email, password, date_of_birth;
+    private CheckBox policy;
+    private RadioGroup gender_group;
+    private RadioButton gender_button;
+    private Button select_date;
+
+    private Calendar c;
+    private DatePickerDialog dpd;
+
+    DatabaseHelper db = new DatabaseHelper(this);
+
+    InputFilter filter = new InputFilter() {
+        @Override
+        public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
+            for (int i = start; i < end; ++i)
+            {
+                if (!Pattern.compile("[ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz]*").matcher(String.valueOf(source.charAt(i))).matches())
+                {
+                    return "";
+                }
+            }
+
+            return null;
+        }
+    };
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_registration);
+
+        gender_group = findViewById(R.id.genderGroup);
+
+        date = findViewById(R.id.date_of_birth);
+        select_date = findViewById(R.id.select_dob);
+
+        first_name = findViewById(R.id.first_name);
+        last_name = findViewById(R.id.last_name);
+        email = findViewById(R.id.email);
+        date_of_birth = findViewById(R.id.date_of_birth);
+        password = findViewById(R.id.password);
+        policy = findViewById(R.id.policy);
+        first_name = findViewById(R.id.first_name);
+
+        first_name.setFilters(new InputFilter[]{filter,new InputFilter.LengthFilter(25)});
+        last_name.setFilters(new InputFilter[]{filter,new InputFilter.LengthFilter(25)});
+        password.setFilters(new InputFilter[]{filter,new InputFilter.LengthFilter(30)});
+
+        select_date.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                c = Calendar.getInstance();
+                final int day = c.get(Calendar.DAY_OF_MONTH);
+                int month = c.get(Calendar.MONTH);
+                int year = c.get(Calendar.YEAR);
+
+                dpd = new DatePickerDialog(Registration.this, new DatePickerDialog.OnDateSetListener() {
+                    @Override
+                    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                        if(dayOfMonth>=10 || month>=10)
+                        {
+                            date.setText((month + 1) + "/" + dayOfMonth + "/" + year);
+                        }
+                        else
+                        {
+                            date.setText("0"+ (month + 1) + "/0" + dayOfMonth + "/" + year);
+                        }
+
+                    }
+                }, day, month, year);
+                dpd.show();
+            }
+        });
+
+        Button b = findViewById(R.id.signUpButtonId);
+        b.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                int selected_gender = gender_group.getCheckedRadioButtonId();
+                gender_button = findViewById(selected_gender);
+
+                String emailPattern = "[a-zA-Z0-9._-]+@[a-z]+\\.+[a-z]+";
+                String datePattern = "^(1[0-2]|0[1-9])/(3[01]" + "|[12][0-9]|0[1-9])/[0-9]{4}$";
+
+
+                if (first_name.getText().toString().equals("")) {
+                    first_name.setError("Empty First Name");
+                }  else if (last_name.getText().toString().equals("")) {
+                    last_name.setError("Empty Last Name");
+                } else if (email.getText().toString().equals("")) {
+                    email.setError("Empty Email Address");
+                } else if (!email.getText().toString().trim().matches(emailPattern)) {
+                    email.setError("Invalid Email Address");
+                } else if (date_of_birth.getText().toString().equals("")) {
+                    date_of_birth.setError("Select Date Of Birth");
+                } else if (!date_of_birth.getText().toString().trim().matches(datePattern)) {
+                    date_of_birth.setError("Date Format Should Be 'mm/dd/yyyy'");
+                } else if (password.getText().toString().equals("")) {
+                    password.setError("Empty Password");
+                } else if(!policy.isChecked()) {
+                    policy.setError("Policy Must Be Accepted");
+                } else {
+
+                    if (first_name.getError() == null && last_name.getError() == null && email.getError() == null &&
+                            date_of_birth.getError() == null && password.getError() == null && policy.isChecked()) {
+
+                        addUser(new User(first_name.getText().toString(), last_name.getText().toString(),
+                                gender_button.getText().toString(), email.getText().toString(), date_of_birth.getText().toString(),
+                                password.getText().toString(), Calendar.getInstance().getTime().toString()));
+                        Toast.makeText(Registration.this,"Registration Successful",Toast.LENGTH_SHORT).show();
+
+                        Intent myIntent = new Intent(v.getContext(), UserDataShow.class);
+                        startActivity(myIntent);
+                    }
+                    first_name.setText("");
+                    last_name.setText("");
+                    email.setText("");
+                    date_of_birth.setText("");
+                    password.setText("");
+                    policy.setChecked(false);
+                    policy.setError(null);
+                }
+            }
+        });
+    }
+
+
+    public void addUser(User newUser) {
+        boolean insertUser = db.addUser(newUser);
+        if(insertUser)
+            toastMessage("User added successfully");
+        else
+            toastMessage("Something went wrong");
+    }
+
+
+    private void toastMessage(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+}
+
+_____________________________________________________________

@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "454844342060",
+    "firebase_url": "https://chulkatidotcom-default-rtdb.firebaseio.com",
+    "project_id": "chulkatidotcom",
+    "storage_bucket": "chulkatidotcom.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:454844342060:android:4b85254d37a39b8b179689",
+        "android_client_info": {
+          "package_name": "com.example.chulkatidotcom"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "454844342060-2q0gosiun8daatbkmepte3ul11balm68.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAbGuGEM9Dz2-7olKmI826gD1JKdBgqrKc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "454844342060-2q0gosiun8daatbkmepte3ul11balm68.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
